@@ -148,8 +148,6 @@ void LongitudinalPanel::refresh(bool _offroad) {
   customAccIncrement->setEnabled(has_longitudinal_control && !is_pcm_cruise && !offroad);
   customAccIncrement->refresh();
 
-  SmartCruiseControlVision->setEnabled(has_longitudinal_control);
-
   // Vibe Personality controls - always enabled for toggling
   vibePersonalityControl->setEnabled(true);
   vibeAccelPersonalityControl->setEnabled(true);
@@ -163,6 +161,8 @@ void LongitudinalPanel::refresh(bool _offroad) {
     bool decEnabled = params.getBool("DynamicExperimentalControl");
     decManageBtn->setVisible(decEnabled);
   }
+
+  SmartCruiseControlVision->setEnabled(has_longitudinal_control);
 
   offroad = _offroad;
 }
