@@ -7,8 +7,9 @@ See the LICENSE.md file in the root directory for more details.
 import numpy as np
 
 from cereal import car
-from openpilot.common.constants import CV
+from opendbc.car import structs
 from openpilot.common.params import Params
+from openpilot.sunnypilot.selfdrive.car.intelligent_cruise_button_management.helpers import get_minimum_set_speed
 
 ButtonType = car.CarState.ButtonEvent.Type
 
@@ -17,11 +18,6 @@ CRUISE_BUTTON_TIMER = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0,
                        ButtonType.cancel: 0, ButtonType.mainCruise: 0}
 
 V_CRUISE_MIN = 8
-
-HYUNDAI_V_CRUISE_MIN = {
-  True: 30,
-  False: int(20 * CV.MPH_TO_KPH),
-}
 
 
 def update_manual_button_timers(CS: car.CarState, button_timers: dict[car.CarState.ButtonEvent.Type, int]) -> None:
@@ -38,7 +34,7 @@ def update_manual_button_timers(CS: car.CarState, button_timers: dict[car.CarSta
 
 
 class VCruiseHelperSP:
-  def __init__(self, CP, CP_SP) -> None:
+  def __init__(self, CP: structs.CarParams, CP_SP: structs.CarParamsSP) -> None:
     self.CP = CP
     self.CP_SP = CP_SP
     self.params = Params()
@@ -71,15 +67,14 @@ class VCruiseHelperSP:
 
     return round_to_nearest, v_cruise_delta
 
-  def get_minimum_set_speed(self, is_metric: bool):
+  def get_minimum_set_speed(self, is_metric: bool) -> None:
     if self.CP_SP.pcmCruiseSpeed:
       self.v_cruise_min = V_CRUISE_MIN
       return
 
-    if self.CP.brand == "hyundai":
-      self.v_cruise_min = HYUNDAI_V_CRUISE_MIN[is_metric]
+    self.v_cruise_min = get_minimum_set_speed(is_metric)
 
-  def update_enabled_state(self, CS, enabled) -> bool:
+  def update_enabled_state(self, CS: car.CarState, enabled: bool) -> bool:
     # special enabled state for non pcmCruiseSpeed, unchanged for non pcmCruise
     if not self.CP_SP.pcmCruiseSpeed:
       update_manual_button_timers(CS, self.enable_button_timers)

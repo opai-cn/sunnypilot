@@ -21,10 +21,11 @@ LongitudinalPanel::LongitudinalPanel(QWidget *parent) : QWidget(parent) {
   intelligentCruiseButtonManagement = new ParamControlSP(
     "IntelligentCruiseButtonManagement",
     tr("Intelligent Cruise Button Management (ICBM) (Alpha)"),
-    "",
+    tr("When enabled, sunnypilot will attempt to manage the built-in cruise control buttons by emulating button presses for limited longitudinal control."),
     "",
     this
   );
+  intelligentCruiseButtonManagement->setConfirmation(true, false);
   list->addItem(intelligentCruiseButtonManagement);
 
   SmartCruiseControlVision = new ParamControl(
@@ -50,7 +51,6 @@ void LongitudinalPanel::showEvent(QShowEvent *event) {
 }
 
 void LongitudinalPanel::refresh(bool _offroad) {
-  auto alpha_longitudinal = params.getBool("AlphaLongitudinalEnabled");
   auto cp_bytes = params.get("CarParamsPersistent");
   auto cp_sp_bytes = params.get("CarParamsSPPersistent");
   if (!cp_bytes.empty() && !cp_sp_bytes.empty()) {
@@ -91,10 +91,12 @@ void LongitudinalPanel::refresh(bool _offroad) {
       customAccIncrement->toggleFlipped(false);
       customAccIncrement->setDescription(accNoLongDescription);
       customAccIncrement->showDescription();
+      params.remove("IntelligentCruiseButtonManagement");
+      intelligentCruiseButtonManagement->toggleFlipped(false);
     }
   }
 
-  bool icbm_allowed = intelligent_cruise_button_management_available && !alpha_longitudinal;
+  bool icbm_allowed = intelligent_cruise_button_management_available && !has_longitudinal_control;
   intelligentCruiseButtonManagement->setEnabled(icbm_allowed && offroad);
 
   // enable toggle when long is available and is not PCM cruise
@@ -102,7 +104,7 @@ void LongitudinalPanel::refresh(bool _offroad) {
   customAccIncrement->setEnabled(cai_allowed && !offroad);
   customAccIncrement->refresh();
 
-  SmartCruiseControlVision->setEnabled(has_longitudinal_control);
+  SmartCruiseControlVision->setEnabled(has_longitudinal_control || icbm_allowed);
 
   offroad = _offroad;
 }
