@@ -226,6 +226,16 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"OsmWayTest", {PERSISTENT, STRING}},
     {"RoadName", {CLEAR_ON_ONROAD_TRANSITION, STRING}},
 
+    // Speed Limit Control
+    {"SpeedLimitAssist", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"SpeedLimitPolicy", {PERSISTENT | BACKUP, INT, "3"}},
+    {"SpeedLimitEngageType", {PERSISTENT | BACKUP, INT, "0"}},
+    {"SpeedLimitOffsetType", {PERSISTENT | BACKUP, INT, "0"}},
+    {"SpeedLimitValueOffset", {PERSISTENT | BACKUP, INT, "0"}},
+    {"SpeedLimitWarningType", {PERSISTENT | BACKUP, INT, "0"}},
+    {"SpeedLimitWarningOffsetType", {PERSISTENT | BACKUP, INT, "0"}},
+    {"SpeedLimitWarningValueOffset", {PERSISTENT | BACKUP, INT, "0"}},
+
     // Tuning keys
     {"EnableHkgTuningAngleSmoothingFactor", {PERSISTENT | BACKUP, BOOL, "1"}},
     {"HkgTuningAngleMinTorqueReductionGain", {PERSISTENT | BACKUP, INT, "10"}},
