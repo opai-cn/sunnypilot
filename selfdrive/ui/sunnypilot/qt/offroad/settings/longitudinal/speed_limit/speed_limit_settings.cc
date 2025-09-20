@@ -20,43 +20,27 @@ SpeedLimitSettings::SpeedLimitSettings(QWidget *parent) : QStackedWidget(parent)
 
   subPanelLayout->addSpacing(20);
 
-  ListWidgetSP *list = new ListWidgetSP(this, true);
-
-  // Speed Limit Assist
-  // TODO-SP: OptionControlSP with Speed Limit Information/Warning as a single option
-  speedLimitAssistToggle = new ParamControlSP(
-    "SpeedLimitAssist",
-    tr("Speed Limit Assist (SLA)"),
-    tr("When you engage ACC, you will be prompted to set the cruising speed to the speed limit of the road adjusted by the Offset and Source Policy specified, or the current driving speed. "
-      "The maximum cruising speed will always be the MAX set speed."),
-    "",
-    this);
-  list->addItem(speedLimitAssistToggle);
-
-  // TODO-SP: Combine Assist/Warning/Information
-  // std::vector<QString> speed_limit_texts{
-  //   SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::OFF)],
-  //   SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::INFORMATION)],
-  //   SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::WARNING)],
-  //   SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::ASSIST)],
-  // };
-  // speed_limit_mode_settings = new ButtonParamControlSP(
-  //   "SpeedLimitMode",
-  //   tr("Speed Limit Mode"),
-  //   tr("When you engage ACC, you will be prompted to set the cruising speed to the speed limit of the road adjusted by the Offset and Source Policy specified, or the current driving speed. "
-  //     "The maximum cruising speed will always be the MAX set speed."),
-  //   "",
-  //   speed_limit_texts,
-  //   250);
-  // list->addItem(speed_limit_mode_settings);
-
-  auto *speedLimitBtnFrame = new QFrame(this);
-  auto *speedLimitBtnFrameLayout = new QGridLayout();
-  speedLimitBtnFrame->setLayout(speedLimitBtnFrameLayout);
-  speedLimitBtnFrameLayout->setContentsMargins(0, 40, 0, 40);
-  speedLimitBtnFrameLayout->setSpacing(0);
+  ListWidgetSP *list = new ListWidgetSP(this, false);
 
   speedLimitPolicyScreen = new SpeedLimitPolicy(this);
+
+  std::vector<QString> speed_limit_mode_texts{
+    SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::OFF)],
+    SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::INFORMATION)],
+    SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::WARNING)],
+    SpeedLimitModeTexts[static_cast<int>(SpeedLimitMode::ASSIST)],
+  };
+  speed_limit_mode_settings = new ButtonParamControlSP(
+    "SpeedLimitMode",
+    tr("Speed Limit Mode"),
+    "",
+    "",
+    speed_limit_mode_texts,
+    385);
+  list->addItem(speed_limit_mode_settings);
+
+  list->addItem(horizontal_line());
+  list->addItem(vertical_space());
 
   speedLimitSource = new PushButtonSP(tr("Customize Source"));
   connect(speedLimitSource, &QPushButton::clicked, [&]() {
@@ -69,8 +53,10 @@ SpeedLimitSettings::SpeedLimitSettings(QWidget *parent) : QStackedWidget(parent)
   });
 
   speedLimitSource->setFixedWidth(720);
-  speedLimitBtnFrameLayout->addWidget(speedLimitSource, 0, 0, Qt::AlignLeft);
-  list->addItem(speedLimitBtnFrame);
+  list->addItem(speedLimitSource);
+
+  list->addItem(vertical_space(0));
+  list->addItem(horizontal_line());
 
   QFrame *offsetFrame = new QFrame(this);
   QVBoxLayout *offsetLayout = new QVBoxLayout(offsetFrame);
@@ -101,7 +87,7 @@ SpeedLimitSettings::SpeedLimitSettings(QWidget *parent) : QStackedWidget(parent)
 
   list->addItem(offsetFrame);
 
-  // connect(speed_limit_mode_settings, &ButtonParamControlSP::buttonClicked, this, &SpeedLimitSettings::refresh);
+  connect(speed_limit_mode_settings, &ButtonParamControlSP::buttonClicked, this, &SpeedLimitSettings::refresh);
   connect(speed_limit_offset, &OptionControlSP::updateLabels, this, &SpeedLimitSettings::refresh);
   connect(speed_limit_offset_settings, &ButtonParamControlSP::showDescriptionEvent, speed_limit_offset, &OptionControlSP::showDescription);
   connect(speed_limit_offset_settings, &ButtonParamControlSP::buttonClicked, this, &SpeedLimitSettings::refresh);
@@ -111,16 +97,21 @@ SpeedLimitSettings::SpeedLimitSettings(QWidget *parent) : QStackedWidget(parent)
   addWidget(subPanelFrame);
   addWidget(speedLimitPolicyScreen);
   setCurrentWidget(subPanelFrame);
-};
+}
 
 void SpeedLimitSettings::refresh() {
+  bool is_metric_param = params.getBool("IsMetric");
+  SpeedLimitMode speed_limit_mode_param = static_cast<SpeedLimitMode>(std::atoi(params.get("SpeedLimitMode").c_str()));
   SpeedLimitOffsetType offset_type_param = static_cast<SpeedLimitOffsetType>(std::atoi(params.get("SpeedLimitOffsetType").c_str()));
   QString offsetLabel = QString::fromStdString(params.get("SpeedLimitValueOffset"));
 
+  speed_limit_mode_settings->setDescription(modeDescription(speed_limit_mode_param));
   speed_limit_offset->setDescription(offsetDescription(offset_type_param));
 
   if (offset_type_param == SpeedLimitOffsetType::PERCENT) {
     offsetLabel += "%";
+  } else if (offset_type_param == SpeedLimitOffsetType::FIXED) {
+    offsetLabel += QString(" %1").arg(is_metric_param ? "km/h" : "mph");
   }
 
   if (offset_type_param == SpeedLimitOffsetType::NONE) {
@@ -130,6 +121,9 @@ void SpeedLimitSettings::refresh() {
     speed_limit_offset->setLabel(offsetLabel);
     speed_limit_offset->showDescription();
   }
+
+  speed_limit_mode_settings->showDescription();
+  speed_limit_offset->showDescription();
 }
 
 void SpeedLimitSettings::showEvent(QShowEvent *event) {

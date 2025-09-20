@@ -145,7 +145,7 @@ struct LongitudinalPlanSP @0xf35cc4560bbf6ec2 {
   dec @0 :DynamicExperimentalControl;
   longitudinalPlanSource @1 :LongitudinalPlanSource;
   smartCruiseControl @2 :SmartCruiseControl;
-  speedLimitAssist @3 :SpeedLimitAssist;
+  speedLimit @3 :SpeedLimit;
   events @4 :List(OnroadEventSP.Event);
 
   struct DynamicExperimentalControl {
@@ -182,36 +182,43 @@ struct LongitudinalPlanSP @0xf35cc4560bbf6ec2 {
     }
   }
 
-  struct SpeedLimitAssist {
-    state @0 :SpeedLimitAssistState;
-    enabled @1 :Bool;
-    active @2 :Bool;
-    speedLimit @3 :Float32;
-    speedLimitOffset @4 :Float32;
-    distToSpeedLimit @5 :Float32;
-    source @6 :SpeedLimitSource;
+  struct SpeedLimit {
+    resolver @0 :Resolver;
+    assist @1 :Assist;
+
+    struct Resolver {
+      speedLimit @0 :Float32;
+      distToSpeedLimit @1 :Float32;
+      source @2 :Source;
+      speedLimitOffset @3 :Float32;
+    }
+
+    struct Assist {
+      state @0 :AssistState;
+      enabled @1 :Bool;
+      active @2 :Bool;
+    }
+
+    enum Source {
+      none @0;
+      car @1;
+      map @2;
+    }
+
+    enum AssistState {
+      disabled @0;
+      inactive @1; # No speed limit set or not enabled by parameter.
+      preActive @2;
+      pending @3; # Awaiting new speed limit.
+      adapting @4; # Reducing speed to match new speed limit.
+      active @5; # Cruising at speed limit.
+    }
   }
 
   enum LongitudinalPlanSource {
     cruise @0;
     sccVision @1;
     speedLimitAssist @2;
-  }
-
-  enum SpeedLimitAssistState {
-    disabled @0;
-    inactive @1; # No speed limit set or not enabled by parameter.
-    preActive @2;
-    pending @3; # Awaiting new speed limit.
-    adapting @4; # Reducing speed to match new speed limit.
-    active @5; # Cruising at speed limit.
-    overriding @6; # System overriding with manual control.
-  }
-
-  enum SpeedLimitSource {
-    none @0;
-    car @1;
-    map @2;
   }
 }
 
@@ -349,7 +356,7 @@ struct BackupManagerSP @0xf98d843bfd7004a3 {
 }
 
 struct CarStateSP @0xb86e6369214c01c8 {
-  speedLimit @0 :Float32;  # m/s
+  speedLimit @0 :Float32;
 }
 
 struct LiveMapDataSP @0xf416ec09499d9d19 {

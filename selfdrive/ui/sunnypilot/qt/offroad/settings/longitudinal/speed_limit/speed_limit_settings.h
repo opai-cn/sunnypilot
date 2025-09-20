@@ -27,12 +27,11 @@ signals:
 private:
   Params params;
   QFrame *subPanelFrame;
-  ParamControlSP *speedLimitAssistToggle;
-  // ButtonParamControlSP *speed_limit_mode_settings;
+  ButtonParamControlSP *speed_limit_mode_settings;
   PushButtonSP *speedLimitSource;
+  SpeedLimitPolicy *speedLimitPolicyScreen;
   ButtonParamControlSP *speed_limit_offset_settings;
   OptionControlSP *speed_limit_offset;
-  SpeedLimitPolicy *speedLimitPolicyScreen;
 
   static QString offsetDescription(SpeedLimitOffsetType type = SpeedLimitOffsetType::NONE) {
     QString none_str = tr("⦿ None: No Offset");
@@ -51,5 +50,28 @@ private:
         .arg(none_str)
         .arg(fixed_str)
         .arg(percent_str);
+  }
+
+  static QString modeDescription(SpeedLimitMode mode = SpeedLimitMode::OFF) {
+    QString off_str = tr("⦿ Off: Disables the Speed Limit functions.");
+    QString info_str = tr("⦿ Information: Displays the current road's speed limit.");
+    QString warning_str = tr("⦿ Warning: Provides a warning when exceeding the current road's speed limit.");
+    QString assist_str = tr("⦿ Assist: Adjusts the vehicle's cruise speed based on the current road's speed limit when operating the +/- buttons.");
+
+    if (mode == SpeedLimitMode::ASSIST) {
+      assist_str = "<font color='white'><b>" + assist_str + "</b></font>";
+    } else if (mode == SpeedLimitMode::WARNING) {
+      warning_str = "<font color='white'><b>" + warning_str + "</b></font>";
+    } else if (mode == SpeedLimitMode::INFORMATION) {
+      info_str = "<font color='white'><b>" + info_str + "</b></font>";
+    } else {
+      off_str = "<font color='white'><b>" + off_str + "</b></font>";
+    }
+
+    return QString("%1<br>%2<br>%3<br>%4")
+        .arg(off_str)
+        .arg(info_str)
+        .arg(warning_str)
+        .arg(assist_str);
   }
 };
