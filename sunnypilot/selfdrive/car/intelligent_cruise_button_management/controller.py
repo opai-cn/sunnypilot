@@ -59,6 +59,7 @@ class IntelligentCruiseButtonManagement:
     v_targets = {
       LongitudinalPlanSource.cruise: v_cruise_ms,
       LongitudinalPlanSource.sccVision: LP_SP.smartCruiseControl.vision.vTarget,
+      LongitudinalPlanSource.speedLimitAssist: LP_SP.longitudinalPlanSP.speedLimit.assist.vTarget,
     }
     source = min(v_targets, key=lambda k: v_targets[k])
     v_target_ms = v_targets[source]
