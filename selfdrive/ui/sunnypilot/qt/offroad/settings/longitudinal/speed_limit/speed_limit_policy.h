@@ -11,6 +11,7 @@
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/settings.h"
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/longitudinal/speed_limit/helpers.h"
 #include "selfdrive/ui/sunnypilot/qt/widgets/controls.h"
+#include "selfdrive/ui/sunnypilot/qt/widgets/scrollview.h"
 
 class SpeedLimitPolicy : public QWidget {
   Q_OBJECT
@@ -27,6 +28,7 @@ signals:
 private:
   Params params;
   ButtonParamControlSP *speed_limit_policy;
+  ScrollViewSP *speedLimitPolicyScroller;
 
   static QString sourceDescription(SpeedLimitSourcePolicy type = SpeedLimitSourcePolicy::CAR_ONLY) {
     QString car_only = tr("⦿ Car Only: Use Speed Limit data only from Car");
