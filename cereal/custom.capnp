@@ -148,7 +148,8 @@ struct LongitudinalPlanSP @0xf35cc4560bbf6ec2 {
   speedLimit @3 :SpeedLimit;
   vTarget @4 :Float32;
   aTarget @5 :Float32;
-  accelPersonality @6 :AccelerationPersonality;
+  events @6 :List(OnroadEventSP.Event);
+  accelPersonality @7 :AccelerationPersonality;
 
   struct DynamicExperimentalControl {
     state @0 :DynamicExperimentalControlState;
@@ -186,6 +187,7 @@ struct LongitudinalPlanSP @0xf35cc4560bbf6ec2 {
 
   struct SpeedLimit {
     resolver @0 :Resolver;
+    assist @1 :Assist;
 
     struct Resolver {
       speedLimit @0 :Float32;
@@ -194,16 +196,34 @@ struct LongitudinalPlanSP @0xf35cc4560bbf6ec2 {
       speedLimitOffset @3 :Float32;
     }
 
+    struct Assist {
+      state @0 :AssistState;
+      enabled @1 :Bool;
+      active @2 :Bool;
+      vTarget @3 :Float32;
+      aTarget @4 :Float32;
+    }
+
     enum Source {
       none @0;
       car @1;
       map @2;
+    }
+
+    enum AssistState {
+      disabled @0;
+      inactive @1; # No speed limit set or not enabled by parameter.
+      preActive @2;
+      pending @3; # Awaiting new speed limit.
+      adapting @4; # Reducing speed to match new speed limit.
+      active @5; # Cruising at speed limit.
     }
   }
 
   enum LongitudinalPlanSource {
     cruise @0;
     sccVision @1;
+    speedLimitAssist @2;
   }
 
   enum AccelerationPersonality {
@@ -252,6 +272,10 @@ struct OnroadEventSP @0xda96579883444c35 {
     pedalPressedAlertOnly @16;
     laneTurnLeft @17;
     laneTurnRight @18;
+    speedLimitPreActive @19;
+    speedLimitActive @20;
+    speedLimitConfirmed @21;
+    speedLimitChanged @22;
   }
 }
 
