@@ -239,4 +239,3 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"HkgTuningAngleActiveTorqueReductionGain", {PERSISTENT | BACKUP, INT, "100"}},
     {"HkgTuningOverridingCycles", {PERSISTENT | BACKUP, INT, "17"}},
 };
-};
