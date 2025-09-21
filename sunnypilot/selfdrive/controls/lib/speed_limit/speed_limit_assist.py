@@ -65,7 +65,6 @@ class SpeedLimitAssist:
     self.v_offset = 0.
     self.v_cruise_cluster = 0.
     self.v_cruise_cluster_prev = 0.
-    self.initial_max_set = False
     self._speed_limit = 0.
     self._speed_limit_offset = 0.
     self.speed_limit_prev = 0.
@@ -152,7 +151,6 @@ class SpeedLimitAssist:
     if self.state != SpeedLimitAssistState.disabled:
       if not self.long_enabled or not self.enabled:
         self.state = SpeedLimitAssistState.disabled
-        self.initial_max_set = False
 
       else:
         # ACTIVE
@@ -180,7 +178,6 @@ class SpeedLimitAssist:
         # PRE_ACTIVE
         elif self.state == SpeedLimitAssistState.preActive:
           if self.initial_max_set_confirmed():
-            self.initial_max_set = True
             if self._speed_limit > 0:
               if self.v_offset < LIMIT_SPEED_OFFSET_TH:
                 self.state = SpeedLimitAssistState.adapting
@@ -204,9 +201,17 @@ class SpeedLimitAssist:
           self.long_engaged_timer = int(DISABLED_GUARD_PERIOD / DT_MDL)
 
         elif self.long_engaged_timer <= 0:
-          self.state = SpeedLimitAssistState.preActive
-          self.pre_active_timer = int(PRE_ACTIVE_GUARD_PERIOD / DT_MDL)
-          self.initial_max_set = False
+          if self.initial_max_set_confirmed():
+            if self._speed_limit > 0:
+              if self.v_offset < LIMIT_SPEED_OFFSET_TH:
+                self.state = SpeedLimitAssistState.adapting
+              else:
+                self.state = SpeedLimitAssistState.active
+            else:
+              self.state = SpeedLimitAssistState.pending
+          else:
+            self.state = SpeedLimitAssistState.preActive
+            self.pre_active_timer = int(PRE_ACTIVE_GUARD_PERIOD / DT_MDL)
 
     enabled = self.state in ENABLED_STATES
     active = self.state in ACTIVE_STATES
@@ -219,8 +224,11 @@ class SpeedLimitAssist:
     elif self.is_active:
       if self._state_prev not in ACTIVE_STATES:
         events_sp.add(EventNameSP.speedLimitActive)
-      elif self.speed_limit_changed:
-        events_sp.add(EventNameSP.speedLimitChanged)
+      elif self.speed_limit_changed and self._speed_limit > 0:
+        if self.speed_limit_prev <= 0:
+          events_sp.add(EventNameSP.speedLimitActive)
+        else:
+          events_sp.add(EventNameSP.speedLimitChanged)
 
   def update(self, long_enabled: bool, long_override: bool, v_ego: float, a_ego: float, v_cruise_cluster: float,
              speed_limit: float, speed_limit_offset: float, distance: float, events_sp: EventsSP) -> None:
