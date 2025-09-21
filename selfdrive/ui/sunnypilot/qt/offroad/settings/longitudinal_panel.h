@@ -8,7 +8,9 @@
 #pragma once
 
 #include "selfdrive/ui/sunnypilot/ui.h"
+#include "selfdrive/ui/sunnypilot/qt/util.h"
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/longitudinal/custom_acc_increment.h"
+#include "selfdrive/ui/sunnypilot/qt/offroad/settings/longitudinal/speed_limit/speed_limit_settings.h"
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/longitudinal/dec_controller.h"
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/settings.h"
 #include "selfdrive/ui/sunnypilot/qt/widgets/scrollview.h"
@@ -25,7 +27,7 @@ private:
   Params params;
   bool has_longitudinal_control = false;
   bool is_pcm_cruise = false;
-  bool intelligent_cruise_button_management_available = false;;
+  bool has_intelligent_cruise_button_management = false;;
   bool offroad = false;
 
   QStackedLayout *main_layout = nullptr;
@@ -41,4 +43,6 @@ private:
   ParamControlSP *vibeAccelPersonalityControl;
   ParamControlSP *vibeFollowPersonalityControl;
   ParamControl *intelligentCruiseButtonManagement = nullptr;
+  SpeedLimitSettings *speedLimitScreen;
+  PushButtonSP *speedLimitSettings;
 };
