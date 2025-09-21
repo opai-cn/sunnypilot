@@ -354,10 +354,10 @@ void HudRendererSP::drawStandstillTimer(QPainter &p, int x, int y) {
 
 void HudRendererSP::drawSpeedLimitSigns(QPainter &p) {
   bool speedLimitValid = speedLimit > 0;
-  bool useLastValidSpeedLimit = !speedLimitValid && speedLimitLastValid > 0 && speedLimitAssistState >= cereal::LongitudinalPlanSP::SpeedLimit::AssistState::DISABLED;
+  bool useLastValidSpeedLimit = !speedLimitValid && speedLimitLastValid > 0 && speedLimitAssistState != cereal::LongitudinalPlanSP::SpeedLimit::AssistState::DISABLED;
   int speedLimitRounded = std::nearbyint(speedLimit);
   bool overspeed = speedLimitRounded < std::nearbyint(speed) && speedLimitRounded > 0;
-  bool speedLimitWarningEnabled = speedLimitMode == SpeedLimitMode::WARNING;
+  bool speedLimitWarningEnabled = speedLimitMode >= SpeedLimitMode::WARNING;
   QString speedLimitStr = speedLimitValid ? QString::number(speedLimitRounded) :
                           (useLastValidSpeedLimit ? QString::number(speedLimitLastValid) : "---");
 
