@@ -131,5 +131,4 @@ void SpeedLimitSettings::refresh() {
 
 void SpeedLimitSettings::showEvent(QShowEvent *event) {
   refresh();
-  speed_limit_offset->showDescription();
 }

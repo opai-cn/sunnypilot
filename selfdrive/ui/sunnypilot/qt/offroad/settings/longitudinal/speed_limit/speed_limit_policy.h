@@ -8,7 +8,6 @@
 #pragma once
 
 #include "selfdrive/ui/sunnypilot/ui.h"
-#include "selfdrive/ui/sunnypilot/qt/offroad/settings/settings.h"
 #include "selfdrive/ui/sunnypilot/qt/offroad/settings/longitudinal/speed_limit/helpers.h"
 #include "selfdrive/ui/sunnypilot/qt/widgets/controls.h"
 #include "selfdrive/ui/sunnypilot/qt/widgets/scrollview.h"
@@ -21,7 +20,6 @@ public:
   void refresh();
   void showEvent(QShowEvent *event) override;
 
-signals:
 signals:
   void backPress();
 
