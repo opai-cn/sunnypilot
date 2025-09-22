@@ -31,6 +31,7 @@ void HudRendererSP::updateState(const UIState &s) {
   float speedConv = is_metric ? MS_TO_KPH : MS_TO_MPH;
   speedLimit = lp_sp.getSpeedLimit().getResolver().getSpeedLimit() * speedConv;
   speedLimitOffset = lp_sp.getSpeedLimit().getResolver().getSpeedLimitOffset() * speedConv;
+  speedLimitValid = speedLimit > 0;
   speedLimitMode = static_cast<SpeedLimitMode>(s.scene.speed_limit_mode);
   speedLimitAssistState = lp_sp.getSpeedLimit().getAssist().getState();
   roadName = s.scene.road_name;
@@ -47,7 +48,7 @@ void HudRendererSP::updateState(const UIState &s) {
   }
   speedLimitAheadDistancePrev = speedLimitAheadDistance;
 
-  if (speedLimit > 0) {
+  if (speedLimitValid) {
     speedLimitLastValid = speedLimit;
   }
 
@@ -353,7 +354,6 @@ void HudRendererSP::drawStandstillTimer(QPainter &p, int x, int y) {
 }
 
 void HudRendererSP::drawSpeedLimitSigns(QPainter &p) {
-  bool speedLimitValid = speedLimit > 0;
   bool useLastValidSpeedLimit = !speedLimitValid && speedLimitLastValid > 0;
   int speedLimitRounded = std::nearbyint(speedLimit);
   int speedLimitFinalRounded = std::nearbyint(speedLimit + speedLimitOffset);
@@ -417,7 +417,7 @@ void HudRendererSP::drawSpeedLimitSigns(QPainter &p) {
     p.drawText(center_circle, Qt::AlignCenter, speedLimitStr);
 
     // Offset value in small circular box
-    if (!speedLimitSubText.isEmpty() && speedLimitValid) {
+    if (!speedLimitSubText.isEmpty() && (speedLimitValid || useLastValidSpeedLimit)) {
       int offset_circle_size = circle_size * 0.4;
       int overlap = offset_circle_size * 0.25;
       QRect offset_circle_rect(
@@ -462,7 +462,7 @@ void HudRendererSP::drawSpeedLimitSigns(QPainter &p) {
     p.drawText(inner_rect.adjusted(0, 80, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
 
     // Offset value in small box
-    if (!speedLimitSubText.isEmpty() && speedLimitValid) {
+    if (!speedLimitSubText.isEmpty() && (speedLimitValid || useLastValidSpeedLimit)) {
       int offset_box_size = sign_rect.width() * 0.4;
       int overlap = offset_box_size * 0.25;
       QRect offset_box_rect(
