@@ -35,6 +35,7 @@ private:
   QWidget *cruisePanelScreen = nullptr;
   CustomAccIncrement *customAccIncrement = nullptr;
   ParamControl *SmartCruiseControlVision;
+  ParamControl *SmartCruiseControlMap;
   ParamControl *intelligentCruiseButtonManagement = nullptr;
   SpeedLimitSettings *speedLimitScreen;
   PushButtonSP *speedLimitSettings;
