@@ -68,9 +68,10 @@ private:
   bool smartCruiseControlVisionActive;
   int smartCruiseControlVisionFrame;
   float speedLimit;
+  float speedLimitLast;
   float speedLimitOffset;
   bool speedLimitValid;
-  float speedLimitLastValid;
+  bool speedLimitLastValid;
   bool speedLimitAheadValid;
   float speedLimitAhead;
   float speedLimitAheadDistance;
