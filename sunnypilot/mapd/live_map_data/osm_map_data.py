@@ -21,14 +21,24 @@ class OsmMapData(BaseMapData):
 
   def update_location(self) -> None:
     location = self.sm['liveLocationKalman']
-    self.localizer_valid = (
-      location.status == log.LiveLocationKalman.Status.valid
-      and location.positionGeodetic.valid
-    )
+    self.localizer_valid = (location.status == log.LiveLocationKalman.Status.valid) and location.positionGeodetic.valid
 
     if self.localizer_valid:
       self.last_bearing = math.degrees(location.calibratedOrientationNED.value[2])
       self.last_position = Coordinate(location.positionGeodetic.value[0], location.positionGeodetic.value[1])
+
+    if self.last_position is None:
+      return
+
+    params = {
+      "latitude": self.last_position.latitude,
+      "longitude": self.last_position.longitude,
+    }
+
+    if self.last_bearing is not None:
+      params['bearings'] = self.last_bearing
+
+    self.mem_params.put("LastGPSPosition", json.dumps(params))
 
   def get_current_speed_limit(self) -> float:
     return float(self.mem_params.get("MapSpeedLimit") or 0.0)
